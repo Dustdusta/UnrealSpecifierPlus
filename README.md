@@ -1,3 +1,6 @@
+## 写在开头
+借用AI完成的环境适配升级和代码修改，不确保安全性
+
 # UnrealSpecifierPlus
 
 [![Rider](https://img.shields.io/jetbrains/plugin/v/RIDER_PLUGIN_ID.svg?label=Rider&colorB=0A7BBB&style=for-the-badge&logo=rider)](https://plugins.jetbrains.com/plugin/RIDER_PLUGIN_ID)
