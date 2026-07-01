@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using JetBrains.Application;
-using JetBrains.Application.Environment;
-using JetBrains.Diagnostics;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
 using Markdig;
@@ -19,11 +18,10 @@ public class UnrealDocProviderComponent
 
     public MarkdownPipeline Pipeline;
 
-    public UnrealDocProviderComponent(
-            ApplicationPackages applicationPackages, IDeployedPackagesExpandLocationResolver resolver)
+    public UnrealDocProviderComponent()
     {
         UnrealSpecifierMarkdownFiles = new Dictionary<string, string>();
-        var pathToDocumentation = GetPathToDocumentationFolder(applicationPackages, resolver);
+        var pathToDocumentation = GetPathToDocumentationFolder();
         MyLogger.Warn("当前插件工作目录" + pathToDocumentation.FullPath);
         foreach (var enumMarkdown in pathToDocumentation.GetChildFiles(
                          "*.md",
@@ -33,7 +31,7 @@ public class UnrealDocProviderComponent
                     UnrealSpecifierMarkdownFiles.Add(enumMarkdown.NameWithoutExtension, enumMarkdown.FullPath);
                 }
                 catch (Exception e) {
-                    MyLogger.Warn(e, $"无法添加文件 {enumMarkdown.NameWithoutExtension}, 路径 {enumMarkdown.FullPath}");
+                    MyLogger.LogExceptionSilently(e);
                 }
             }
         }
@@ -42,13 +40,14 @@ public class UnrealDocProviderComponent
         Pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     }
 
-    private static FileSystemPath GetPathToDocumentationFolder(
-            ApplicationPackages applicationPackages, IDeployedPackagesExpandLocationResolver resolver)
+    private static FileSystemPath GetPathToDocumentationFolder()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var package = applicationPackages.FindPackageWithAssembly(assembly, OnError.LogException);
-        var installDirectory = resolver.GetDeployedPackageDirectory(package);
-        var editorPluginPathFile = installDirectory.Parent.Combine("documentation").Combine("Specifier");
+        var assemblyDir = Path.GetDirectoryName(assembly.Location);
+        if (assemblyDir == null)
+            return FileSystemPath.Empty;
+
+        var editorPluginPathFile = FileSystemPath.TryParse(assemblyDir).Parent.Combine("documentation").Combine("Specifier");
         return editorPluginPathFile;
     }
 }

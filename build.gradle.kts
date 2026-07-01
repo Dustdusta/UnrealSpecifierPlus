@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     id("java")
     alias(libs.plugins.kotlinJvm)
-    id("org.jetbrains.intellij.platform") version "2.0.0-beta5"     // See https://github.com/JetBrains/intellij-platform-gradle-plugin/releases
+    id("org.jetbrains.intellij.platform") version "2.2.0"     // See https://github.com/JetBrains/intellij-platform-gradle-plugin/releases
     id("me.filippov.gradle.jvm.wrapper") version "0.14.0"
 }
 
@@ -55,7 +55,12 @@ sourceSets {
 }
 
 tasks.compileKotlin {
-    kotlinOptions { jvmTarget = "17" }
+    kotlinOptions { jvmTarget = "21" }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 val setBuildTool by tasks.registering {
@@ -141,7 +146,7 @@ tasks.buildPlugin {
 
 dependencies {
     intellijPlatform {
-        rider(ProductVersion)
+        local("C:\\Users\\Admin\\AppData\\Local\\Programs\\Rider")
         jetbrainsRuntime()
         instrumentationTools()
 
@@ -154,6 +159,10 @@ dependencies {
 tasks.runIde {
     // Match Rider's default heap size of 1.5Gb (default for runIde is 512Mb)
     maxHeapSize = "1500m"
+}
+
+intellijPlatform {
+    buildSearchableOptions = false
 }
 
 tasks.patchPluginXml {
